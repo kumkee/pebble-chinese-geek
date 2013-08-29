@@ -13,5 +13,6 @@ void Solar2Lunar(Date*,Date*,Date*);
 
 //void GenerateCDateText(PblTm*, char*,bool);
 void GenerateCDateText(PblTm*, char*,char*,char*,bool);
+void GenerateKeText(PblTm *, char *);
 
 #endif

@@ -1,4 +1,4 @@
-#include "string.h"
+//#include "string.h"
 #include "lylunar.h"
 
 
@@ -21,6 +21,7 @@ void CDateDisplayNo(Date *d, char* text)
 
 #define zhLen 3
 #define MvChar(zhi) memcpy(text + place*zhLen, zhi, zhLen)
+
 void CDateDisplayZh(Date *d, char* text)
 {
   char ZhDigit[10][zhLen+1] = { "正", "一", "二", "三", "四", "五", "六", "七", "八", "九" };
@@ -76,14 +77,13 @@ void GanZhiDisplay(Date* gz, char* text, bool G_or_Z)
 
   char* Zh = G_or_Z?ZhGan:ZhZhi;
   
-  GZcpy(year);
-  place++;
-  memcpy(text + place*zhLen, Zh + gz->month*zhLen, zhLen);
-  GZcpy(month);
+  GZcpy(hour);
   place++;
   GZcpy(day);
   place++;
-  GZcpy(hour);
+  GZcpy(month);
+  place++;
+  GZcpy(year);
   place++;
 
   text[place*zhLen] = 0;
@@ -115,3 +115,12 @@ void GenerateCDateText(PblTm *t, char* cdtext, char* gantxt, char* zhitxt, bool 
   
 }
 
+void GenerateKeText(PblTm *t, char *text)
+{
+  char ZhQuarter[4][zhLen+1] = { "初", "一", "二", "三" };
+  char ZhHour[2][zhLen+1] = { "初", "正" };
+
+  memcpy(text, ZhHour[(t->tm_hour+1)%2], zhLen );
+  memcpy(text+zhLen+1, ZhQuarter[t->tm_min/15], zhLen );
+
+}

@@ -17,7 +17,29 @@ PBL_APP_INFO(MY_UUID,
 Window window;
 
 TextLayer text_gan_layer;
+TextLayer text_zhi_layer;
+TextLayer text_ymdh_layer;
+TextLayer text_ke_layer;
 
+
+#define bazi_font	fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_IPA_SUBSET_29))
+#define ke_font		fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_IPA_SUBSET_18))
+#define left_margin	5
+#define	right_margin	5
+#define	top_margin	5
+#define	bazi_length	144 - bazi_left_margin - right_margin
+#define	bazi_height	29
+#define ke_length	19
+#define ke_height	bazi_height*2
+#define ke_top_margin	1.8*top_margin + bazi_height
+#define	bazi_left_margin	ke_length + left_margin
+#define LayerInit(Layer, X, Y, L, H, Font) \
+	text_layer_init(&Layer, window.layer.frame); \
+	text_layer_set_text_color(&Layer, GColorWhite); \
+	text_layer_set_background_color(&Layer, GColorClear); \
+	layer_set_frame(&Layer.layer, GRect(X, Y, L, H)); \
+	text_layer_set_font(&Layer, Font); \
+	layer_add_child(&window.layer, &Layer.layer);
 
 void handle_init(AppContextRef ctx) {
 
@@ -27,14 +49,14 @@ void handle_init(AppContextRef ctx) {
 
   resource_init_current_app(&APP_RESOURCES);
 
+  LayerInit(text_gan_layer, bazi_left_margin, top_margin, bazi_length, bazi_height+3, bazi_font);
 
-  text_layer_init(&text_gan_layer, window.layer.frame);
-  text_layer_set_text_color(&text_gan_layer, GColorWhite);
-  text_layer_set_background_color(&text_gan_layer, GColorClear);
-  layer_set_frame(&text_gan_layer.layer, GRect(8, 8, 128, 56));
-  text_layer_set_font(&text_gan_layer, 
-	fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_IPA_SUBSET_32)));
-  layer_add_child(&window.layer, &text_gan_layer.layer);
+  LayerInit(text_zhi_layer, bazi_left_margin, top_margin+bazi_height, bazi_length, bazi_height+3, bazi_font);
+
+  LayerInit(text_ymdh_layer, bazi_left_margin, top_margin+2*bazi_height, bazi_length, bazi_height+3, bazi_font);
+
+  LayerInit(text_ke_layer, left_margin, ke_top_margin, ke_length, ke_height, ke_font);
+
 }
 
 
@@ -44,9 +66,27 @@ void handle_minute_tick(AppContextRef ctx, PebbleTickEvent *evt) {
   static char ccd_text[] = "LLLTTTDDDYYYCCCDDD";
   static char gan_text[] = "YYYMMMDDDHHH";
   static char zhi_text[] = "YYYMMMDDDHHH";
+  static char ke_text[]  = "初\n初\n刻";
 
-  GenerateCDateText(evt->tick_time, ccd_text, gan_text, zhi_text, ZhDisplay);
-  text_layer_set_text(&text_gan_layer, gan_text);
+  static bool is_ganzhi_drawn = false;
+  static bool is_ke_drawn = false;
+
+
+  if(!is_ganzhi_drawn)	text_layer_set_text(&text_ymdh_layer, "時日月年");
+  if( ((evt->units_changed & HOUR_UNIT) && evt->tick_time->tm_hour%2==1) || !is_ganzhi_drawn )
+  {	
+	GenerateCDateText(evt->tick_time, ccd_text, gan_text, zhi_text, ZhDisplay);
+	text_layer_set_text(&text_gan_layer, gan_text);
+	text_layer_set_text(&text_zhi_layer, zhi_text);
+	is_ganzhi_drawn = true;
+  }
+
+  if( ((evt->units_changed & MINUTE_UNIT) && evt->tick_time->tm_min%15==0) || !is_ke_drawn )
+  {	
+	GenerateKeText(evt->tick_time, ke_text);
+	text_layer_set_text(&text_ke_layer, ke_text);
+	is_ke_drawn = true;
+  }
 
 }
 
@@ -56,7 +96,7 @@ void pbl_main(void *params) {
     .init_handler = &handle_init,
     .tick_info = {
       .tick_handler = &handle_minute_tick,
-      .tick_units = HOUR_UNIT
+      .tick_units = MINUTE_UNIT
     }
 
   };
