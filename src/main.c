@@ -2,7 +2,7 @@
 #include "pebble_app.h"
 #include "pebble_fonts.h"
 
-#include "lylunar.h"
+#include "chical.h"
 
 const bool ZhDisplay = true;
 
@@ -20,6 +20,7 @@ TextLayer text_gan_layer;
 TextLayer text_zhi_layer;
 TextLayer text_ymdh_layer;
 TextLayer text_ke_layer;
+TextLayer text_hexa_layer;
 
 
 #define bazi_font	fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_IPA_SUBSET_29))
@@ -33,6 +34,12 @@ TextLayer text_ke_layer;
 #define ke_height	bazi_height*2
 #define ke_top_margin	1.8*top_margin + bazi_height
 #define	bazi_left_margin	ke_length + left_margin
+
+#define hexa_top_margin	top_margin + 3*bazi_height
+#define hexa_length	bazi_height
+#define hexa_height	2*bazi_height
+#define hexa_font	fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_HANA_SUBSET_29))
+
 #define LayerInit(Layer, X, Y, L, H, Font) \
 	text_layer_init(&Layer, window.layer.frame); \
 	text_layer_set_text_color(&Layer, GColorWhite); \
@@ -54,8 +61,11 @@ void handle_init(AppContextRef ctx) {
   LayerInit(text_zhi_layer, bazi_left_margin, top_margin+bazi_height, bazi_length, bazi_height+3, bazi_font);
 
   LayerInit(text_ymdh_layer, bazi_left_margin, top_margin+2*bazi_height, bazi_length, bazi_height+3, bazi_font);
+  text_layer_set_text(&text_ymdh_layer, "時日月年");
 
   LayerInit(text_ke_layer, left_margin, ke_top_margin, ke_length, ke_height, ke_font);
+
+  LayerInit(text_hexa_layer, left_margin, hexa_top_margin, hexa_length, hexa_height, hexa_font);
 
 }
 
@@ -67,12 +77,11 @@ void handle_minute_tick(AppContextRef ctx, PebbleTickEvent *evt) {
   static char gan_text[] = "YYYMMMDDDHHH";
   static char zhi_text[] = "YYYMMMDDDHHH";
   static char ke_text[]  = "初\n初\n刻";
+  static char hex_text[]  = "初";
 
   static bool is_ganzhi_drawn = false;
   static bool is_ke_drawn = false;
 
-
-  if(!is_ganzhi_drawn)	text_layer_set_text(&text_ymdh_layer, "時日月年");
   if( ((evt->units_changed & HOUR_UNIT) && evt->tick_time->tm_hour%2==1) || !is_ganzhi_drawn )
   {	
 	GenerateCDateText(evt->tick_time, ccd_text, gan_text, zhi_text, ZhDisplay);
@@ -88,6 +97,9 @@ void handle_minute_tick(AppContextRef ctx, PebbleTickEvent *evt) {
 	is_ke_drawn = true;
   }
 
+  GenerateHexagram(evt->tick_time, hex_text);
+  text_layer_set_text(&text_hexa_layer, hex_text);
+
 }
 
 
@@ -96,7 +108,7 @@ void pbl_main(void *params) {
     .init_handler = &handle_init,
     .tick_info = {
       .tick_handler = &handle_minute_tick,
-      .tick_units = MINUTE_UNIT
+      .tick_units = SECOND_UNIT
     }
 
   };

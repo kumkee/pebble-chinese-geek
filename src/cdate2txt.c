@@ -1,5 +1,5 @@
 //#include "string.h"
-#include "lylunar.h"
+#include "chical.h"
 
 
 void CDateDisplayNo(Date *d, char* text)
@@ -115,6 +115,7 @@ void GenerateCDateText(PblTm *t, char* cdtext, char* gantxt, char* zhitxt, bool 
   
 }
 
+
 void GenerateKeText(PblTm *t, char *text)
 {
   char ZhQuarter[4][zhLen+1] = { "初", "一", "二", "三" };
@@ -122,5 +123,35 @@ void GenerateKeText(PblTm *t, char *text)
 
   memcpy(text, ZhHour[(t->tm_hour+1)%2], zhLen );
   memcpy(text+zhLen+1, ZhQuarter[t->tm_min/15], zhLen );
+
+}
+
+
+void GenerateHexagram(PblTm *t, char *text)
+{
+  #define nHex	64
+  #define qml	15
+  static bool is_hexa_def = false;
+  static char Hexa[nHex][zhLen+2] ={"䷀ \0", "䷁ \0", "䷂ \0", "䷃ \0", "䷄ \0", "䷅ \0", "䷆ \0", "䷇ \0", "䷈ \0", "䷉ \0", "䷊ \0", "䷋ \0", "䷌ \0", "䷍ \0", "䷎ \0", "䷏ \0", "䷐ \0", "䷑ \0", "䷒ \0", "䷓ \0", "䷔ \0", "䷕ \0", "䷖ \0", "䷗ \0", "䷘ \0", "䷙ \0", "䷚ \0", "䷛ \0", "䷜ \0", "䷝ \0", "䷞ \0", "䷟ \0", "䷠ \0", "䷡ \0", "䷢ \0", "䷣ \0", "䷤ \0", "䷥ \0", "䷦ \0", "䷧ \0", "䷨ \0", "䷩ \0", "䷪ \0", "䷫ \0", "䷬ \0", "䷭ \0", "䷮ \0", "䷯ \0", "䷰ \0", "䷱ \0", "䷲ \0", "䷳ \0", "䷴ \0", "䷵ \0", "䷶ \0", "䷷ \0", "䷸ \0", "䷹ \0", "䷺ \0", "䷻ \0", "䷼ \0", "䷽ \0", "䷾ \0", "䷿ \0"};
+  int i;
+  static int idx[nHex];
+  
+  static int sec = 0;
+  static int quamin = 0;
+
+  if(!is_hexa_def)
+  {
+	int valhex[nHex] = {000,077,056,035,050,005,075,057,010,004,070,007,002,020,073,067,046,031,074,017,026,032,037,076,006,030,036,041,055,022,043,061,003,060,027,072,012,024,053,065,034,016,040,001,047,071,045,051,042,021,066,033,013,064,062,023,011,044,015,054,014,063,052,025};
+  	for(i=0;i<nHex;i++)  idx[valhex[i]] = i;
+  	sec = (60*t->tm_min + t->tm_sec) % (60*qml);
+	quamin = sec / qml;
+	sec %= qml;
+  }
+  else if(sec==qml)  {sec = 0; quamin++;}
+  else sec++;
+
+  if(quamin%60==0) quamin = 0;
+
+  memcpy(text, Hexa[idx[quamin%60]], zhLen );
 
 }

@@ -13,6 +13,12 @@
 	"characterRegex": "[\u523B\u521D\u6B63\u4E00\u4E8C\u4E09]",
         "defName": "FONT_IPA_SUBSET_18",
         "file": "fonts/ipag-sub.ttf"
+        },
+        {
+        "type": "font",
+	"characterRegex": "[\u4DC0-\u4DFF]",
+        "defName": "FONT_HANA_SUBSET_29",
+        "file": "fonts/hanamin-sub.ttf"
         }
  ]
 }
