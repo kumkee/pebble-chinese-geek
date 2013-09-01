@@ -130,7 +130,12 @@ void GenerateKeText(PblTm *t, char *text)
 void GenerateHexagram(PblTm *t, char *text)
 {
   #define nHex	64
-  #define qml	15
+  #define minl	60
+  #define qual	900
+  #define quaminl	14
+  #define nblock	4
+  #define blockl	225
+  #define blocklqm	16
   static bool is_hexa_def = false;
   static char Hexa[nHex][zhLen+2] ={"䷀ \0", "䷁ \0", "䷂ \0", "䷃ \0", "䷄ \0", "䷅ \0", "䷆ \0", "䷇ \0", "䷈ \0", "䷉ \0", "䷊ \0", "䷋ \0", "䷌ \0", "䷍ \0", "䷎ \0", "䷏ \0", "䷐ \0", "䷑ \0", "䷒ \0", "䷓ \0", "䷔ \0", "䷕ \0", "䷖ \0", "䷗ \0", "䷘ \0", "䷙ \0", "䷚ \0", "䷛ \0", "䷜ \0", "䷝ \0", "䷞ \0", "䷟ \0", "䷠ \0", "䷡ \0", "䷢ \0", "䷣ \0", "䷤ \0", "䷥ \0", "䷦ \0", "䷧ \0", "䷨ \0", "䷩ \0", "䷪ \0", "䷫ \0", "䷬ \0", "䷭ \0", "䷮ \0", "䷯ \0", "䷰ \0", "䷱ \0", "䷲ \0", "䷳ \0", "䷴ \0", "䷵ \0", "䷶ \0", "䷷ \0", "䷸ \0", "䷹ \0", "䷺ \0", "䷻ \0", "䷼ \0", "䷽ \0", "䷾ \0", "䷿ \0"};
   int i;
@@ -143,15 +148,19 @@ void GenerateHexagram(PblTm *t, char *text)
   {
 	int valhex[nHex] = {000,077,056,035,050,005,075,057,010,004,070,007,002,020,073,067,046,031,074,017,026,032,037,076,006,030,036,041,055,022,043,061,003,060,027,072,012,024,053,065,034,016,040,001,047,071,045,051,042,021,066,033,013,064,062,023,011,044,015,054,014,063,052,025};
   	for(i=0;i<nHex;i++)  idx[valhex[i]] = i;
-  	sec = (60*t->tm_min + t->tm_sec) % (60*qml);
-	quamin = sec / qml;
-	sec %= qml;
+
+  	sec = (minl*t->tm_min + t->tm_sec) % qual;
+	quamin = sec/blockl*blocklqm + sec%blockl/quaminl;
+	sec %= blockl;
   }
-  else if(sec==qml)  {sec = 0; quamin++;}
+  else if(sec%quaminl==0 && sec!=blockl) 
+	quamin++;
+  else if(sec==blockl)  
+	{sec = 0; quamin++;}
   else sec++;
 
-  if(quamin%60==0) quamin = 0;
+  if(quamin%nHex==0) quamin = 0;
 
-  memcpy(text, Hexa[idx[quamin%60]], zhLen );
+  memcpy(text, Hexa[idx[quamin]], zhLen );
 
 }
