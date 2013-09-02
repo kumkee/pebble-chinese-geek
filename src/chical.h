@@ -15,5 +15,6 @@ void Solar2Lunar(Date*,Date*,Date*);
 void GenerateCDateText(PblTm*, char*,char*,char*,bool);
 void GenerateKeText(PblTm *, char *);
 void GenerateHexagram(PblTm *, char *);
+bool IfNewHexa(PblTm *);
 
 #endif

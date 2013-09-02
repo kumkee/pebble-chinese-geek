@@ -97,8 +97,10 @@ void handle_minute_tick(AppContextRef ctx, PebbleTickEvent *evt) {
 	is_ke_drawn = true;
   }
 
-  GenerateHexagram(evt->tick_time, hex_text);
-  text_layer_set_text(&text_hexa_layer, hex_text);
+  if(IfNewHexa(evt->tick_time)) {
+	GenerateHexagram(evt->tick_time, hex_text);
+	text_layer_set_text(&text_hexa_layer, hex_text);
+  }
 
 }
 

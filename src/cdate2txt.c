@@ -127,37 +127,60 @@ void GenerateKeText(PblTm *t, char *text)
 }
 
 
+#define nHex	64
+#define minl	60
+#define qual	900
+#define quaminl	14
+#define nblock	4
+#define blockl	225
+#define blocklqm	16
+
+bool IfNewHexa(PblTm *t)
+{
+  bool result = false;
+  static bool first_call = true;
+  static int sec = 0;
+
+  if(first_call) {
+  	sec = (minl*t->tm_min + t->tm_sec) % qual % blockl;
+	first_call = false;
+	result = true;
+  }
+  else if(sec%quaminl==0 && sec!=blockl)
+	result = true;
+  else if(sec==blockl) {
+	sec = 0;
+	result = true;
+  }
+
+  sec++;
+
+  return result;
+}
+
 void GenerateHexagram(PblTm *t, char *text)
 {
-  #define nHex	64
-  #define minl	60
-  #define qual	900
-  #define quaminl	14
-  #define nblock	4
-  #define blockl	225
-  #define blocklqm	16
+
   static bool is_hexa_def = false;
   static char Hexa[nHex][zhLen+2] ={"䷀ \0", "䷁ \0", "䷂ \0", "䷃ \0", "䷄ \0", "䷅ \0", "䷆ \0", "䷇ \0", "䷈ \0", "䷉ \0", "䷊ \0", "䷋ \0", "䷌ \0", "䷍ \0", "䷎ \0", "䷏ \0", "䷐ \0", "䷑ \0", "䷒ \0", "䷓ \0", "䷔ \0", "䷕ \0", "䷖ \0", "䷗ \0", "䷘ \0", "䷙ \0", "䷚ \0", "䷛ \0", "䷜ \0", "䷝ \0", "䷞ \0", "䷟ \0", "䷠ \0", "䷡ \0", "䷢ \0", "䷣ \0", "䷤ \0", "䷥ \0", "䷦ \0", "䷧ \0", "䷨ \0", "䷩ \0", "䷪ \0", "䷫ \0", "䷬ \0", "䷭ \0", "䷮ \0", "䷯ \0", "䷰ \0", "䷱ \0", "䷲ \0", "䷳ \0", "䷴ \0", "䷵ \0", "䷶ \0", "䷷ \0", "䷸ \0", "䷹ \0", "䷺ \0", "䷻ \0", "䷼ \0", "䷽ \0", "䷾ \0", "䷿ \0"};
   int i;
   static int idx[nHex];
   
-  static int sec = 0;
   static int quamin = 0;
 
   if(!is_hexa_def)
   {
 	int valhex[nHex] = {000,077,056,035,050,005,075,057,010,004,070,007,002,020,073,067,046,031,074,017,026,032,037,076,006,030,036,041,055,022,043,061,003,060,027,072,012,024,053,065,034,016,040,001,047,071,045,051,042,021,066,033,013,064,062,023,011,044,015,054,014,063,052,025};
+	int sec = 0;
   	for(i=0;i<nHex;i++)  idx[valhex[i]] = i;
 
   	sec = (minl*t->tm_min + t->tm_sec) % qual;
-	quamin = sec/blockl*blocklqm + sec%blockl/quaminl;
+	quamin = sec/blockl*blocklqm + (sec%blockl==blockl-1?sec-1:sec)%blockl/quaminl;
 	sec %= blockl;
+ 	is_hexa_def = true;
   }
-  else if(sec%quaminl==0 && sec!=blockl) 
+  else
 	quamin++;
-  else if(sec==blockl)  
-	{sec = 0; quamin++;}
-  else sec++;
 
   if(quamin%nHex==0) quamin = 0;
 
