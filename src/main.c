@@ -3,6 +3,7 @@
 #include "pebble_fonts.h"
 
 #include "chical.h"
+#include "strtools.h"
 
 const bool ZhDisplay = true;
 
@@ -22,23 +23,49 @@ TextLayer text_ymdh_layer;
 TextLayer text_ke_layer;
 TextLayer text_hexa_layer;
 
+TextLayer text_gyear_layer;
+TextLayer text_gdate_layer;
+TextLayer text_cdate_layer;
 
-#define bazi_font	fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_IPA_SUBSET_29))
-#define ke_font		fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_IPA_SUBSET_18))
+
+#define tot_length	144
+#define tot_height	168
+
+#define bazi_font	fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_IPA_SUBSET_27))
+#define ke_font		bazi_font
 #define left_margin	5
 #define	right_margin	5
 #define	top_margin	5
-#define	bazi_length	144 - bazi_left_margin - right_margin
-#define	bazi_height	29
-#define ke_length	19
-#define ke_height	bazi_height*2
-#define ke_top_margin	1.8*top_margin + bazi_height
+#define	bazi_length	tot_length - bazi_left_margin - right_margin
+#define	bazi_height	27
+#define ke_length	28
+#define ke_height	bazi_height*3 + 5
+#define ke_top_margin	top_margin// + bazi_height
 #define	bazi_left_margin	ke_length + left_margin
 
 #define hexa_top_margin	top_margin + 3*bazi_height
 #define hexa_length	bazi_height
 #define hexa_height	2*bazi_height
 #define hexa_font	fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_HANA_SUBSET_29))
+
+#define gyear_font	fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_VERTICAL_17))
+#define gyear_length	18
+#define gyear_height	4*gyear_length + 5
+#define gyear_top_margin	tot_height - top_margin - gyear_height
+#define gyear_left_margin	tot_length - right_margin - gyear_length
+
+#define gdate_font	fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_VERTICAL_14))
+#define gdate_length	gyear_length
+#define gdate_height	gyear_height
+#define gdate_top_margin	gyear_top_margin
+#define gdate_left_margin	gyear_left_margin - gdate_length
+
+#define cdate_font	fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_IPA_SUB_13))
+#define cdate_length	gyear_length
+#define cdate_height	gyear_height + 5
+#define cdate_top_margin	gyear_top_margin - 8
+#define cdate_left_margin	gdate_left_margin - cdate_length
+
 
 #define LayerInit(Layer, X, Y, L, H, Font) \
 	text_layer_init(&Layer, window.layer.frame); \
@@ -47,6 +74,7 @@ TextLayer text_hexa_layer;
 	layer_set_frame(&Layer.layer, GRect(X, Y, L, H)); \
 	text_layer_set_font(&Layer, Font); \
 	layer_add_child(&window.layer, &Layer.layer);
+
 
 void handle_init(AppContextRef ctx) {
 
@@ -67,26 +95,42 @@ void handle_init(AppContextRef ctx) {
 
   LayerInit(text_hexa_layer, left_margin, hexa_top_margin, hexa_length, hexa_height, hexa_font);
 
+  LayerInit(text_gyear_layer, gyear_left_margin, gyear_top_margin, gyear_length, gyear_height, gyear_font);
+
+  LayerInit(text_gdate_layer, gdate_left_margin, gdate_top_margin, gdate_length, gdate_height, gdate_font);
+
+  LayerInit(text_cdate_layer, cdate_left_margin, cdate_top_margin, cdate_length, cdate_height, cdate_font);
+
 }
 
 
 
-void handle_minute_tick(AppContextRef ctx, PebbleTickEvent *evt) {
+void handle_second_tick(AppContextRef ctx, PebbleTickEvent *evt) {
 
-  static char ccd_text[] = "LLLTTTDDDYYYCCCDDD";
   static char gan_text[] = "YYYMMMDDDHHH";
   static char zhi_text[] = "YYYMMMDDDHHH";
   static char ke_text[]  = "初\n初\n刻";
   static char hex_text[]  = "初";
+  static char gyear_text[]  = "3\n1\n0\n2";
+  static char gdate_text[]  = "0\n3\ng\nu\nA";
+  static char cdate_text[]  = "閏\n十\n一\n月\n初\n三";
+  //static char cdate_text2[25]  = "閏十一月初三";
 
   static bool is_ganzhi_drawn = false;
   static bool is_ke_drawn = false;
+  static bool is_gyear_drawn = false;
+  static bool is_gdate_drawn = false;
+  static bool is_cdate_drawn = false;
 
   if( ((evt->units_changed & HOUR_UNIT) && evt->tick_time->tm_hour%2==1) || !is_ganzhi_drawn )
   {	
-	GenerateCDateText(evt->tick_time, ccd_text, gan_text, zhi_text, ZhDisplay);
+	GenerateCDateText(evt->tick_time, cdate_text, gan_text, zhi_text, ZhDisplay);
 	text_layer_set_text(&text_gan_layer, gan_text);
 	text_layer_set_text(&text_zhi_layer, zhi_text);
+
+	str_verticize_zh(cdate_text);
+	text_layer_set_text(&text_cdate_layer, cdate_text);
+
 	is_ganzhi_drawn = true;
   }
 
@@ -102,6 +146,18 @@ void handle_minute_tick(AppContextRef ctx, PebbleTickEvent *evt) {
 	text_layer_set_text(&text_hexa_layer, hex_text);
   }
 
+  if( (evt->units_changed & YEAR_UNIT) || !is_gyear_drawn) {
+	string_format_time(gyear_text, 7, "%Y", evt->tick_time);
+	str_verticize(gyear_text);
+	text_layer_set_text(&text_gyear_layer, gyear_text);
+  }
+
+  if( (evt->units_changed & DAY_UNIT) || !is_gdate_drawn) {
+	string_format_time(gdate_text, 9, "%b%d", evt->tick_time);
+	str_verticize(gdate_text);
+	text_layer_set_text(&text_gdate_layer, gdate_text);
+  }
+
 }
 
 
@@ -109,7 +165,7 @@ void pbl_main(void *params) {
   PebbleAppHandlers handlers = {
     .init_handler = &handle_init,
     .tick_info = {
-      .tick_handler = &handle_minute_tick,
+      .tick_handler = &handle_second_tick,
       .tick_units = SECOND_UNIT
     }
 

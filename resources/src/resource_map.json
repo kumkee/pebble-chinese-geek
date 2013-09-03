@@ -4,14 +4,14 @@
  "media": [
         {
         "type": "font",
-	"characterRegex": "[\u7532\u4E59\u4E19\u4E01\u620A\u5DF1\u5E9A\u8F9B\u58EC\u7678\u5B50\u4E11\u5BC5\u536F\u8FB0\u5DF3\u5348\u672A\u7533\u9149\u620C\u4EA5\u5E74\u6708\u65E5\u6642]",
-        "defName": "FONT_IPA_SUBSET_29",
+	"characterRegex": "[\u7532\u4E59\u4E19\u4E01\u620A\u5DF1\u5E9A\u8F9B\u58EC\u7678\u5B50\u4E11\u5BC5\u536F\u8FB0\u5DF3\u5348\u672A\u7533\u9149\u620C\u4EA5\u5E74\u6708\u65E5\u6642\u523B\u521D\u6B63\u4E00\u4E8C\u4E09]",
+        "defName": "FONT_IPA_SUBSET_27",
         "file": "fonts/ipag-sub.ttf"
         },
         {
         "type": "font",
-	"characterRegex": "[\u523B\u521D\u6B63\u4E00\u4E8C\u4E09]",
-        "defName": "FONT_IPA_SUBSET_18",
+	"characterRegex": "[\u4E00\u4E8C\u4E09\u56DB\u4E94\u516D\u4E03\u516B\u4E5D\u5341\u521D\u6B63\u5EFF\u958F\u6708]",
+        "defName": "FONT_IPA_SUB_13",
         "file": "fonts/ipag-sub.ttf"
         },
         {
@@ -19,6 +19,18 @@
 	"characterRegex": "[\u4DC0-\u4DFF]",
         "defName": "FONT_HANA_SUBSET_29",
         "file": "fonts/hanamin-sub.ttf"
+        },
+        {
+        "type": "font",
+	"characterRegex": "[0-9]",
+        "defName": "FONT_VERTICAL_17",
+        "file": "fonts/Achen_Vertical.ttf"
+        },
+        {
+        "type": "font",
+	"characterRegex": "[0-9a-zA-Z]",
+        "defName": "FONT_VERTICAL_14",
+        "file": "fonts/Achen_Vertical.ttf"
         }
  ]
 }
