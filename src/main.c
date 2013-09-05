@@ -5,13 +5,11 @@
 #include "chical.h"
 #include "strtools.h"
 
-const bool ZhDisplay = true;
-
 
 #define MY_UUID { 0x42, 0x6F, 0x1A, 0x53, 0x91, 0x1E, 0x4C, 0x29, 0x8D, 0xFA, 0x01, 0xD6, 0xFE, 0x9A, 0x46, 0xB4 }
 PBL_APP_INFO(MY_UUID,
              "Chinese Geek", "kumkee",
-             0, 1, /* App version */
+             0, 2, /* App version */
              DEFAULT_MENU_ICON,
              APP_INFO_WATCH_FACE);
 
@@ -50,8 +48,8 @@ TextLayer text_cdate_layer;
 
 #define gyear_font	fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_VERTICAL_17))
 #define gyear_length	18
-#define gyear_height	4*gyear_length + 5
-#define gyear_top_margin	tot_height - top_margin - gyear_height
+#define gyear_top_margin	top_margin + ke_height
+#define gyear_height	tot_height - gyear_top_margin
 #define gyear_left_margin	tot_length - right_margin - gyear_length
 
 #define gdate_font	fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_VERTICAL_14))
@@ -124,7 +122,7 @@ void handle_second_tick(AppContextRef ctx, PebbleTickEvent *evt) {
 
   if( ((evt->units_changed & HOUR_UNIT) && evt->tick_time->tm_hour%2==1) || !is_ganzhi_drawn )
   {	
-	GenerateCDateText(evt->tick_time, cdate_text, gan_text, zhi_text, ZhDisplay);
+	GenerateCDateText(evt->tick_time, cdate_text, gan_text, zhi_text, true);
 	text_layer_set_text(&text_gan_layer, gan_text);
 	text_layer_set_text(&text_zhi_layer, zhi_text);
 
