@@ -68,25 +68,30 @@ void CDateDisplayZh(Date *d, char* text)
 }
 
 
-#define GZcpy(col)  memcpy(text + place*zhLen, Zh + (gz->col)*zhLen, zhLen)
 void GanZhiDisplay(Date* gz, char* text, bool G_or_Z)
 {
-  char ZhGan[] = {"甲乙丙丁戊己庚辛壬癸"};
-  char ZhZhi[] = {"子丑寅卯辰巳午未申酉戌亥"};
+  static char ZhGan[] = {"甲乙丙丁戊己庚辛壬癸"};
+  static char ZhZhi[] = {"子丑寅卯辰巳午未申酉戌亥"};
   int place = 0;
+  static bool firstcall[2] = {true, true};
+  #define GZcpy(col)  memcpy(text + place*zhLen, Zh + (gz->col)*zhLen, zhLen)
 
   char* Zh = G_or_Z?ZhGan:ZhZhi;
   
   GZcpy(hour);
-  place++;
-  GZcpy(day);
-  place++;
-  GZcpy(month);
-  place++;
-  GZcpy(year);
-  place++;
+  if(gz->hour == 23 || firstcall[G_or_Z])
+  {
+	firstcall[G_or_Z] = false;
+	place++;
+	GZcpy(day);
+	place++;
+	GZcpy(month);
+	place++;
+	GZcpy(year);
+	place++;
 
-  text[place*zhLen] = 0;
+	text[place*zhLen] = 0;
+  }
 }
 
 
@@ -94,6 +99,7 @@ void GenerateCDateText(PblTm *t, char* cdtext, char* gantxt, char* zhitxt, bool 
 {
 
   Date today;
+  static bool firstcall = true;
 
   today.year  = t->tm_year + 1900;
   today.month = t->tm_mon + 1;
@@ -104,22 +110,25 @@ void GenerateCDateText(PblTm *t, char* cdtext, char* gantxt, char* zhitxt, bool 
 
   Solar2Lunar(&today, &gan, &zhi);
 
+  GanZhiDisplay(&gan,gantxt,true);
+  GanZhiDisplay(&zhi,zhitxt,false);
+
+  if(today.hour != 23 && !firstcall) return;
+  if(firstcall) firstcall = false;
+  
   if(ZhDisplay) 
 	CDateDisplayZh(&today,cdtext);
 
   else
 	CDateDisplayNo(&today,cdtext);
 
-  GanZhiDisplay(&gan,gantxt,true);
-  GanZhiDisplay(&zhi,zhitxt,false);
-  
 }
 
 
 void GenerateKeText(PblTm *t, char *text)
 {
-  char ZhQuarter[4][zhLen+1] = { "初", "一", "二", "三" };
-  char ZhHour[2][zhLen+1] = { "初", "正" };
+  static char ZhQuarter[4][zhLen+1] = { "初", "一", "二", "三" };
+  static char ZhHour[2][zhLen+1] = { "初", "正" };
 
   memcpy(text, ZhHour[(t->tm_hour+1)%2], zhLen );
   memcpy(text+zhLen+1, ZhQuarter[t->tm_min/15], zhLen );
