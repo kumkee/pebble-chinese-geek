@@ -24,6 +24,7 @@ TextLayer text_hexa_layer;
 TextLayer text_gyear_layer;
 TextLayer text_gdate_layer;
 TextLayer text_cdate_layer;
+TextLayer text_wday_layer;
 
 
 #define tot_length	144
@@ -58,11 +59,17 @@ TextLayer text_cdate_layer;
 #define gdate_top_margin	gyear_top_margin
 #define gdate_left_margin	gyear_left_margin - gdate_length
 
+#define wday_font	gdate_font
+#define wday_length	gyear_length
+#define wday_height	gyear_height
+#define wday_top_margin	gyear_top_margin + 1
+#define wday_left_margin	gdate_left_margin - wday_length
+
 #define cdate_font	fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_IPA_SUB_13))
 #define cdate_length	gyear_length
 #define cdate_height	gyear_height + 5
 #define cdate_top_margin	gyear_top_margin - 8
-#define cdate_left_margin	gdate_left_margin - cdate_length
+#define cdate_left_margin	wday_left_margin - cdate_length
 
 
 #define LayerInit(Layer, X, Y, L, H, Font) \
@@ -99,6 +106,8 @@ void handle_init(AppContextRef ctx) {
 
   LayerInit(text_cdate_layer, cdate_left_margin, cdate_top_margin, cdate_length, cdate_height, cdate_font);
 
+  LayerInit(text_wday_layer, wday_left_margin, wday_top_margin, wday_length, wday_height, wday_font);
+
 }
 
 
@@ -109,10 +118,10 @@ void handle_second_tick(AppContextRef ctx, PebbleTickEvent *evt) {
   static char zhi_text[] = "YYYMMMDDDHHH";
   static char ke_text[]  = "初\n初\n刻";
   static char hex_text[]  = "初";
-  static char gyear_text[]  = "3\n1\n0\n2";
+  static char gyear_text[]  = "1\n9\n0\n1";
   static char gdate_text[]  = "0\n3\ng\nu\nA";
   static char cdate_text[]  = "閏\n十\n一\n月\n初\n三";
-  //static char cdate_text2[25]  = "閏十一月初三";
+  static char wday_text[]  = "W\ne\nd";
 
   static bool is_ganzhi_drawn = false;
   static bool is_ke_drawn = false;
@@ -126,17 +135,19 @@ void handle_second_tick(AppContextRef ctx, PebbleTickEvent *evt) {
 	text_layer_set_text(&text_gan_layer, gan_text);
 	text_layer_set_text(&text_zhi_layer, zhi_text);
 
-	str_verticize_zh(cdate_text);
-	text_layer_set_text(&text_cdate_layer, cdate_text);
+	if(evt->tick_time->tm_hour == 23 || !is_ganzhi_drawn) {
+		str_verticize_zh(cdate_text);
+		text_layer_set_text(&text_cdate_layer, cdate_text);
+	}
 
-	is_ganzhi_drawn = true;
+	if(!is_ganzhi_drawn) is_ganzhi_drawn = true;
   }
 
   if( ((evt->units_changed & MINUTE_UNIT) && evt->tick_time->tm_min%15==0) || !is_ke_drawn )
   {	
 	GenerateKeText(evt->tick_time, ke_text);
 	text_layer_set_text(&text_ke_layer, ke_text);
-	is_ke_drawn = true;
+	if(!is_ke_drawn) is_ke_drawn = true;
   }
 
   if(IfNewHexa(evt->tick_time)) {
@@ -148,12 +159,17 @@ void handle_second_tick(AppContextRef ctx, PebbleTickEvent *evt) {
 	string_format_time(gyear_text, 7, "%Y", evt->tick_time);
 	str_verticize(gyear_text);
 	text_layer_set_text(&text_gyear_layer, gyear_text);
+	if(!is_gyear_drawn) is_gyear_drawn = true;
   }
 
   if( (evt->units_changed & DAY_UNIT) || !is_gdate_drawn) {
 	string_format_time(gdate_text, 9, "%b%d", evt->tick_time);
+	string_format_time(wday_text, 6, "%a", evt->tick_time);
 	str_verticize(gdate_text);
+	str_verticize(wday_text);
 	text_layer_set_text(&text_gdate_layer, gdate_text);
+	text_layer_set_text(&text_wday_layer, wday_text);
+	if(!is_gdate_drawn) is_gdate_drawn = true;
   }
 
 }

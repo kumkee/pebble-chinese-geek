@@ -81,7 +81,8 @@ void GanZhiDisplay(Date* gz, char* text, bool G_or_Z)
   GZcpy(hour);
   if(gz->hour == 23 || firstcall[G_or_Z])
   {
-	firstcall[G_or_Z] = false;
+	if(firstcall[G_or_Z])
+		firstcall[G_or_Z] = false;
 	place++;
 	GZcpy(day);
 	place++;
