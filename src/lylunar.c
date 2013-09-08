@@ -103,6 +103,7 @@ void Solar2Lunar(Date *d, Date *g, Date *z)
 	offset++;
 
     Day2Lunar(offset, d);
+
     DateCopy(&l,d);
 
     JieDate(&s, &l);

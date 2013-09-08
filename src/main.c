@@ -9,7 +9,7 @@
 #define MY_UUID { 0x42, 0x6F, 0x1A, 0x53, 0x91, 0x1E, 0x4C, 0x29, 0x8D, 0xFA, 0x01, 0xD6, 0xFE, 0x9A, 0x46, 0xB4 }
 PBL_APP_INFO(MY_UUID,
              "Chinese Geek", "kumkee",
-             0, 2, /* App version */
+             0, 3, /* App version */
              DEFAULT_MENU_ICON,
              APP_INFO_WATCH_FACE);
 

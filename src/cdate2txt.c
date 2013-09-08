@@ -68,7 +68,7 @@ void CDateDisplayZh(Date *d, char* text)
 }
 
 
-void GanZhiDisplay(Date* gz, char* text, bool G_or_Z)
+void GanZhiDisplay(Date *today, Date* gz, char* text, bool G_or_Z)
 {
   static char ZhGan[] = {"甲乙丙丁戊己庚辛壬癸"};
   static char ZhZhi[] = {"子丑寅卯辰巳午未申酉戌亥"};
@@ -79,7 +79,7 @@ void GanZhiDisplay(Date* gz, char* text, bool G_or_Z)
   char* Zh = G_or_Z?ZhGan:ZhZhi;
   
   GZcpy(hour);
-  if(gz->hour == 23 || firstcall[G_or_Z])
+  if(today->hour == 23 || firstcall[G_or_Z])
   {
 	if(firstcall[G_or_Z])
 		firstcall[G_or_Z] = false;
@@ -111,8 +111,8 @@ void GenerateCDateText(PblTm *t, char* cdtext, char* gantxt, char* zhitxt, bool 
 
   Solar2Lunar(&today, &gan, &zhi);
 
-  GanZhiDisplay(&gan,gantxt,true);
-  GanZhiDisplay(&zhi,zhitxt,false);
+  GanZhiDisplay(&today, &gan, gantxt, true);
+  GanZhiDisplay(&today, &zhi, zhitxt, false);
 
   if(today.hour != 23 && !firstcall) return;
   if(firstcall) firstcall = false;
