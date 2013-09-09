@@ -9,9 +9,9 @@
 6. Day of week
 
 ##Update History:
-v0.3
+####v0.3
 Day-column-update bug reomved
-v0.2
+####v0.2
 Minor efficiency improvements; Day of week added
-v0.1
+####v0.1
 First beta release.
