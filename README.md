@@ -1,5 +1,8 @@
 # Chinese (Japanese) geek watch face
 
+## Preview
+![chinese-geek](https://user-images.githubusercontent.com/391431/226257376-cc6edde6-51c5-4df8-a72c-972abaf2a230.jpg)
+
 ## Features:
 1. Eight-Character (八字, a.k.a. Four-Column 四柱) solar calendar (double-hour, date, month, and year)
 2. Chinese quarter of hour (刻)
